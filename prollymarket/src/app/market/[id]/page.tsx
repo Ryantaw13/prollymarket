@@ -118,6 +118,17 @@ const [betting, setBetting] = useState(false);
         <h1 className="text-2xl font-bold mb-2">{market.question}</h1>
         {market.description && <p className="text-gray-600 dark:text-gray-300 mb-4">{market.description}</p>}
         
+        {/* Share Button */}
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copied to clipboard!');
+          }}
+          className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          📋 Share
+        </button>
+        
         {market.isResolved && (
           <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
             market.outcome === 'YES' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'

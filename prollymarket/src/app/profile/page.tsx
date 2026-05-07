@@ -41,8 +41,15 @@ export default function Profile() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [activeTab, setActiveTab] = useState<'active' | 'closed' | 'created'>('active');
   const [loading, setLoading] = useState(true);
+  const [claimingBonus, setClaimingBonus] = useState(false);
+  const [canClaimBonus, setCanClaimBonus] = useState(true);
 
   useEffect(() => {
+    fetch('/api/daily-bonus')
+      .then(res => res.json())
+      .then(data => setCanClaimBonus(data.canClaim))
+      .catch(() => {});
+    
     fetch('/api/me')
       .then(res => res.json())
       .then(data => {
@@ -109,6 +116,27 @@ export default function Profile() {
               <div className="text-orange-500 font-medium">
                 🔥 {user.streakDays} day streak
               </div>
+            )}
+            {canClaimBonus && (
+              <button
+                onClick={async () => {
+                  setClaimingBonus(true);
+                  const res = await fetch('/api/daily-bonus', { method: 'POST' });
+                  const data = await res.json();
+                  if (res.ok) {
+                    setUser({ ...user, balance: data.totalBalance, streakDays: data.streakDays });
+                    setCanClaimBonus(false);
+                    alert(`Bonus claimed! +$${data.bonusAmount}`);
+                  } else {
+                    alert(data.error);
+                  }
+                  setClaimingBonus(false);
+                }}
+                disabled={claimingBonus}
+                className="mt-2 btn-primary text-sm"
+              >
+                {claimingBonus ? 'Claiming...' : '🎁 Daily Bonus'}
+              </button>
             )}
           </div>
         </div>

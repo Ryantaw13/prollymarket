@@ -24,11 +24,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Link href="/markets" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                     Markets
                   </Link>
+                  <Link href="/contest" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    Contest
+                  </Link>
                   <Link href="/leaderboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                     Leaderboard
                   </Link>
                   <Link href="/create" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                     Create
+                  </Link>
+                  <Link href="/achievements" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    🏆
                   </Link>
                 </div>
               </div>
@@ -40,11 +46,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
             </div>
             {/* Mobile nav */}
-            <div className="md:hidden px-4 pb-3 flex gap-4">
+            <div className="md:hidden px-4 pb-3 flex gap-4 flex-wrap">
               <Link href="/markets" className="text-gray-600 dark:text-gray-300">Markets</Link>
+              <Link href="/contest" className="text-gray-600 dark:text-gray-300">Contest</Link>
               <Link href="/leaderboard" className="text-gray-600 dark:text-gray-300">Leaderboard</Link>
               <Link href="/create" className="text-gray-600 dark:text-gray-300">Create</Link>
               <Link href="/profile" className="text-gray-600 dark:text-gray-300">Profile</Link>
+              <Link href="/achievements" className="text-gray-600 dark:text-gray-300">🏆</Link>
             </div>
           </nav>
           <main className="max-w-6xl mx-auto px-4 py-8">
