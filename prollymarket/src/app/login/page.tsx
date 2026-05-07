@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 export default function Login() {
   const router = useRouter();
@@ -44,7 +43,7 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="card">
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
           <input
             type="text"
             value={username}
@@ -55,7 +54,7 @@ export default function Login() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
           <input
             type="password"
             value={password}
@@ -65,7 +64,7 @@ export default function Login() {
           />
         </div>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 dark:text-red-400 text-sm mb-4">{error}</p>}
 
         <button
           type="submit"
@@ -76,11 +75,8 @@ export default function Login() {
         </button>
       </form>
 
-      <p className="text-center mt-4 text-gray-600">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-indigo-600 hover:underline">
-          Register
-        </Link>
+      <p className="text-center mt-4 text-gray-600 dark:text-gray-400">
+        Contact admin for access.
       </p>
     </div>
   );

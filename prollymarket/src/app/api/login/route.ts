@@ -12,7 +12,15 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await db.user.findUnique({ where: { username } });
-    if (!user || !verifyPassword(password, user.passwordHash)) {
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    if (!user.approved) {
+      return NextResponse.json({ error: 'Account not approved. Contact admin.' }, { status: 403 });
+    }
+
+    if (!verifyPassword(password, user.passwordHash)) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 

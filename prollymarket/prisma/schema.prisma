@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  email       String   @unique
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  email       String    @unique
   passwordHash String
   displayName String?
   balance    Float    @default(1000)
-  createdAt   DateTime @default(now())
+  approved   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
   
   markets Market[]
   bets    Bet[]
