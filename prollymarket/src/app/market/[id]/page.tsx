@@ -38,6 +38,10 @@ const [betting, setBetting] = useState(false);
   const [showResolve, setShowResolve] = useState(false);
   const [resolveOutcome, setResolveOutcome] = useState<'YES' | 'NO'>('YES');
   const [resolving, setResolving] = useState(false);
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [postingComment, setPostingComment] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   useEffect(() => {
     fetch(`/api/markets?id=${params.id}`)
@@ -45,6 +49,7 @@ const [betting, setBetting] = useState(false);
       .then(data => {
         setMarket(data.market);
         setBets(data.bets || []);
+        setComments(data.comments || []);
         setLoading(false);
       })
       .catch(() => router.push('/'));
@@ -250,6 +255,80 @@ const [betting, setBetting] = useState(false);
                 <span>${bet.amount.toFixed(2)}</span>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* Comments Section */}
+      <div className="card mt-6">
+        <button 
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center justify-between w-full"
+        >
+          <h2 className="font-medium">Comments ({market.commentCount || 0})</h2>
+          <span>{showComments ? '▼' : '▶'}</span>
+        </button>
+        
+        {showComments && (
+          <div className="mt-4">
+            {/* Add Comment */}
+            {user && (
+              <div className="mb-4">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="input min-h-[80px]"
+                  maxLength={500}
+                />
+                <div className="flex justify-between mt-2">
+                  <span className="text-xs text-gray-500">{newComment.length}/500</span>
+                  <button
+                    onClick={async () => {
+                      if (!newComment.trim()) return;
+                      setPostingComment(true);
+                      const res = await fetch(`/api/markets/${market.id}/comment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ marketId: market.id, content: newComment })
+                      });
+                      const data = await res.json();
+                      if (res.ok) {
+                        setComments([data.comment, ...comments]);
+                        setNewComment('');
+                      }
+                      setPostingComment(false);
+                    }}
+                    disabled={postingComment || !newComment.trim()}
+                    className="btn-primary text-sm"
+                  >
+                    {postingComment ? 'Posting...' : 'Post'}
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Comments List */}
+            <div className="space-y-3">
+              {comments.length === 0 && (
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                  No comments yet. Be the first!
+                </p>
+              )}
+              {comments.map((comment: any) => (
+                <div key={comment.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium text-sm">
+                      {comment.user?.displayName || comment.user?.username || 'User'}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(comment.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-sm">{comment.content}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

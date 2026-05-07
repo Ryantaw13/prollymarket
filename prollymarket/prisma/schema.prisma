@@ -8,49 +8,105 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  username    String    @unique
-  email       String    @unique
-  passwordHash String
-  displayName String?
-  balance    Float    @default(1000)
-  approved   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  id            Int        @id @default(autoincrement())
+  username      String     @unique
+  email         String     @unique
+  passwordHash  String
+  displayName  String?
+  balance      Float      @default(1000)
+  streakDays   Int        @default(0)
+  lastLogin    DateTime?
+  referralCode String?    @unique
+  referredBy   Int?
+  approved    Boolean    @default(false)
+  achievements String    @default("[]")
+  createdAt    DateTime   @default(now())
   
-  markets Market[]
-  bets    Bet[]
+  markets      Market[]
+  bets         Bet[]
+  comments     Comment[]
+  alerts       Alert[]
+  referredUsers User[]     @relation("ReferralUser")
+  referredByUser User?   @relation("ReferralUser", fields: [referredBy], references: [id])
 }
 
 model Market {
-  id          Int       @id @default(autoincrement())
-  question   String
-  description String?
-  category   String   @default("general")
-  imageUrl   String?
-  creatorId  Int
-  yesPrice   Float    @default(0.5)
-  noPrice   Float    @default(0.5)
-  volume    Int      @default(0)
-  outcome   String?
-  closesAt   DateTime?
-  createdAt  DateTime  @default(now())
-  isResolved Boolean @default(false)
+  id           Int        @id @default(autoincrement())
+  question     String
+  description  String?
+  category     String     @default("general")
+  imageUrl     String?
+  creatorId    Int
+  yesPrice    Float      @default(0.5)
+  noPrice     Float      @default(0.5)
+  volume      Int        @default(0)
+  volume24h   Int        @default(0)
+  outcome     String?
+  endDate    DateTime?
+  commentCount Int      @default(0)
+  isTrending  Boolean   @default(false)
+  isResolved  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
   
-  creator User @relation(fields: [creatorId], references: [id])
-  bets    Bet[]
+  creator     User      @relation(fields: [creatorId], references: [id])
+  bets        Bet[]
+  comments    Comment[]
+  alerts     Alert[]
+  priceHistory PriceHistory[]
 }
 
 model Bet {
   id        Int      @id @default(autoincrement())
   userId   Int
   marketId Int
-  amount  Float
+  amount   Float
   outcome  String
-  price   Float
-  payout  Float?
-  realized Boolean @default(false)
+  price    Float
+  payout   Float?
+  realized Boolean  @default(false)
   createdAt DateTime @default(now())
   
-  user   User   @relation(fields: [userId], references: [id])
-  market Market @relation(fields: [marketId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  market   Market   @relation(fields: [marketId], references: [id])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  marketId  Int
+  content   String
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
+  market    Market   @relation(fields: [marketId], references: [id])
+}
+
+model Alert {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  marketId  Int
+  targetPrice Float
+  direction  String
+  triggered Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
+  market    Market   @relation(fields: [marketId], references: [id])
+}
+
+model PriceHistory {
+  id        Int      @id @default(autoincrement())
+  marketId  Int
+  price     Float
+  outcome   String
+  createdAt DateTime @default(now())
+  
+  market    Market   @relation(fields: [marketId], references: [id])
+}
+
+model DailyBonus {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  date      DateTime @default(now())
 }

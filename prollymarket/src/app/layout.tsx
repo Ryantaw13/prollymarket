@@ -16,18 +16,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-              <Link href="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                ProllyMarket
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link href="/markets" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                  Markets
+              <div className="flex items-center gap-6">
+                <Link href="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                  ProllyMarket
                 </Link>
-                <Link href="/create" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                  Create Market
+                <div className="hidden md:flex items-center gap-4">
+                  <Link href="/markets" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    Markets
+                  </Link>
+                  <Link href="/leaderboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    Leaderboard
+                  </Link>
+                  <Link href="/create" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    Create
+                  </Link>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link href="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Profile
                 </Link>
                 <ThemeToggle />
               </div>
+            </div>
+            {/* Mobile nav */}
+            <div className="md:hidden px-4 pb-3 flex gap-4">
+              <Link href="/markets" className="text-gray-600 dark:text-gray-300">Markets</Link>
+              <Link href="/leaderboard" className="text-gray-600 dark:text-gray-300">Leaderboard</Link>
+              <Link href="/create" className="text-gray-600 dark:text-gray-300">Create</Link>
+              <Link href="/profile" className="text-gray-600 dark:text-gray-300">Profile</Link>
             </div>
           </nav>
           <main className="max-w-6xl mx-auto px-4 py-8">
