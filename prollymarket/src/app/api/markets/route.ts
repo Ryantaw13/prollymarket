@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMarkets, getMarketById, getBets } from '@/lib/store';
+import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -7,18 +7,20 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
 
   if (id) {
-    const market = getMarketById(parseInt(id));
+    const market = await db.market.findUnique({ where: { id: parseInt(id) } });
     if (!market) {
       return NextResponse.json({ error: 'Market not found' }, { status: 404 });
     }
-    const marketBets = getBets().filter(b => b.marketId === market.id);
-    return NextResponse.json({ market, bets: marketBets });
+    const bets = await db.bet.findMany({ where: { marketId: market.id } } as any);
+    return NextResponse.json({ market, bets });
   }
 
-  let markets = getMarkets();
+  let where = {};
   if (category) {
-    markets = markets.filter(m => m.category === category);
+    where = { category };
   }
+
+  const markets = await db.market.findMany({ where } as any);
 
   return NextResponse.json({ markets });
 }

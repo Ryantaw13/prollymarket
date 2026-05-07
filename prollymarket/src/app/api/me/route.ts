@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-import { getUserById, getMarkets, getBets, resolveMarket, settleBets } from '@/lib/store';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -15,15 +15,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
-  const user = getUserById(decoded.userId);
+  const user = await db.user.findUnique({ where: { id: decoded.userId } });
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const userBets = getBets().filter(b => b.userId === user.id);
+  const bets = await db.bet.findMany({ where: { userId: user.id } } as any);
 
   return NextResponse.json({
     user: { id: user.id, username: user.username, displayName: user.displayName, balance: user.balance },
-    bets: userBets,
+    bets,
   });
 }

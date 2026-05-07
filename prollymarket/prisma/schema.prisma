@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  passwordHash String
+  displayName String?
+  balance    Float    @default(1000)
+  createdAt   DateTime @default(now())
+  
+  markets Market[]
+  bets    Bet[]
+}
+
+model Market {
+  id          Int       @id @default(autoincrement())
+  question   String
+  description String?
+  category   String   @default("general")
+  imageUrl   String?
+  creatorId  Int
+  yesPrice   Float    @default(0.5)
+  noPrice   Float    @default(0.5)
+  volume    Int      @default(0)
+  outcome   String?
+  closesAt   DateTime?
+  createdAt  DateTime  @default(now())
+  isResolved Boolean @default(false)
+  
+  creator User @relation(fields: [creatorId], references: [id])
+  bets    Bet[]
+}
+
+model Bet {
+  id        Int      @id @default(autoincrement())
+  userId   Int
+  marketId Int
+  amount  Float
+  outcome  String
+  price   Float
+  payout  Float?
+  realized Boolean @default(false)
+  createdAt DateTime @default(now())
+  
+  user   User   @relation(fields: [userId], references: [id])
+  market Market @relation(fields: [marketId], references: [id])
+}

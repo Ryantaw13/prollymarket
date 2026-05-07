@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByUsername, getUserByEmail, createUser } from '@/lib/store';
-import { hashPassword, createToken } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { hashPassword, createToken, verifyPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,15 +11,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    if (getUserByUsername(username)) {
+    const existing = await db.user.findUnique({ where: { username } });
+    if (existing) {
       return NextResponse.json({ error: 'Username already taken' }, { status: 400 });
     }
 
-    if (getUserByEmail(email)) {
+    const existingEmail = await db.user.findUnique({ where: { email } });
+    if (existingEmail) {
       return NextResponse.json({ error: 'Email already taken' }, { status: 400 });
     }
 
-    const user = createUser({
+    const user = await db.user.create({
       username,
       email,
       passwordHash: hashPassword(password),
@@ -33,6 +35,7 @@ export async function POST(request: NextRequest) {
       token,
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
   }
 }

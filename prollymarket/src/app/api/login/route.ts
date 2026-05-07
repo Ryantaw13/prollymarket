@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByUsername } from '@/lib/store';
-import { verifyPassword, createToken } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { createToken, verifyPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
     }
 
-    const user = getUserByUsername(username);
+    const user = await db.user.findUnique({ where: { username } });
     if (!user || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       token,
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Login failed' }, { status: 500 });
   }
 }

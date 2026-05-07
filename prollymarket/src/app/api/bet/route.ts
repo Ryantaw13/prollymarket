@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-import { createBet, getUserById, getMarketById, updateUserBalance } from '@/lib/store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const user = getUserById(decoded.userId);
+    const user = await db.user.findUnique({ where: { id: decoded.userId } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 401 });
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Amount must be positive' }, { status: 400 });
     }
 
-    const market = getMarketById(marketId);
+    const market = await db.market.findUnique({ where: { id: marketId } });
     if (!market) {
       return NextResponse.json({ error: 'Market not found' }, { status: 404 });
     }
@@ -52,28 +52,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
     }
 
-    updateUserBalance(user.id, -cost);
+    await db.user.update({
+      where: { id: user.id },
+      data: { balance: user.balance - cost },
+    });
 
-    const bet = createBet({
+    const bet = await db.bet.create({
       userId: user.id,
       marketId,
       amount,
       outcome,
+      price,
     });
 
-    if (!bet) {
-      updateUserBalance(user.id, cost);
-      return NextResponse.json({ error: 'Failed to place bet' }, { status: 500 });
-    }
+    await db.market.update({
+      where: { id: marketId },
+      data: { volume: market.volume + Math.round(cost * 100) / 100 },
+    });
 
-    const updatedMarket = getMarketById(marketId);
+    const updatedMarket = await db.market.findUnique({ where: { id: marketId } });
 
     return NextResponse.json({
       bet,
-      balance: user.balance,
+      balance: user.balance - cost,
       market: updatedMarket,
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to place bet' }, { status: 500 });
   }
 }
