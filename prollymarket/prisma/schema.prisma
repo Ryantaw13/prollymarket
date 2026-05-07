@@ -2,9 +2,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Development: SQLite (local)
+// Use: DATABASE_URL="file:./dev.db"
+
+// Production: Supabase PostgreSQL
+// Use: DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres"
+
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
