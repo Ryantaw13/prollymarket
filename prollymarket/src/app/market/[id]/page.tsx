@@ -33,14 +33,13 @@ export default function MarketPage() {
   const [loading, setLoading] = useState(true);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
-  const [betting, setBetting] = useState(false);
-  const [token, setToken] = useState('');
+const [betting, setBetting] = useState(false);
   const [user, setUser] = useState<{ balance: number } | null>(null);
+  const [showResolve, setShowResolve] = useState(false);
+  const [resolveOutcome, setResolveOutcome] = useState<'YES' | 'NO'>('YES');
+  const [resolving, setResolving] = useState(false);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    setToken(storedToken || '');
-    
     fetch(`/api/markets?id=${params.id}`)
       .then(res => res.json())
       .then(data => {
@@ -51,15 +50,6 @@ export default function MarketPage() {
       .catch(() => router.push('/'));
   }, [params.id, router]);
 
-  useEffect(() => {
-    if (token) {
-      fetch('/api/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => res.json())
-        .then(data => setUser(data.user))
-        .catch(() => {});
-    }
-  }, [token]);
-
   const formatPrice = (price: number) => (price * 100).toFixed(0) + '¢';
   const formatVolume = (volume: number) => {
     if (volume >= 1000000) return `$${(volume / 1000000).toFixed(1)}M`;
@@ -68,18 +58,13 @@ export default function MarketPage() {
   };
 
   const placeBet = async (outcome: 'YES' | 'NO') => {
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    
     setError('');
     setBetting(true);
     
     try {
       const res = await fetch('/api/bet', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ marketId: market?.id, amount: parseFloat(amount), outcome }),
       });
       
@@ -90,7 +75,6 @@ export default function MarketPage() {
       } else {
         setMarket(data.market);
         setUser({ balance: data.balance });
-        localStorage.setItem('token', data.token || token);
       }
     } catch {
       setError('Failed to place bet');
@@ -129,7 +113,73 @@ export default function MarketPage() {
             Resolved: {market.outcome}
           </div>
         )}
+
+        {!market.isResolved && (
+          <button
+            onClick={() => setShowResolve(true)}
+            className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Resolve this market
+          </button>
+        )}
       </div>
+
+      {showResolve && !market.isResolved && (
+        <div className="card mb-6 border-2 border-indigo-500">
+          <h2 className="font-medium mb-4">Resolve Market</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            This will pay out winners and finalize the market.
+          </p>
+          <div className="flex gap-4 mb-4">
+            <button
+              onClick={() => setResolveOutcome('YES')}
+              className={`flex-1 py-2 rounded-lg font-medium ${
+                resolveOutcome === 'YES' ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
+              }`}
+            >
+              YES wins
+            </button>
+            <button
+              onClick={() => setResolveOutcome('NO')}
+              className={`flex-1 py-2 rounded-lg font-medium ${
+                resolveOutcome === 'NO' ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
+              }`}
+            >
+              NO wins
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                setResolving(true);
+                const res = await fetch('/api/markets/resolve', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ marketId: market.id, outcome: resolveOutcome }),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                  setMarket(data.market);
+                  setShowResolve(false);
+                } else {
+                  alert(data.error);
+                }
+                setResolving(false);
+              }}
+              disabled={resolving}
+              className="flex-1 btn-primary disabled:opacity-50"
+            >
+              {resolving ? 'Resolving...' : 'Confirm Resolution'}
+            </button>
+            <button
+              onClick={() => setShowResolve(false)}
+              className="px-4 py-2 btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {!market.isResolved && (
         <div className="card mb-6">
