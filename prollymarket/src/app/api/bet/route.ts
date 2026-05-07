@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const user = await db.user.findUnique({ where: { id: decoded.userId } });
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 401 });
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Amount must be positive' }, { status: 400 });
     }
 
-    const market = await db.market.findUnique({ where: { id: marketId } });
+    const market = await prisma.market.findUnique({ where: { id: marketId } });
     if (!market) {
       return NextResponse.json({ error: 'Market not found' }, { status: 404 });
     }
@@ -52,25 +52,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
     }
 
-    await db.user.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: { balance: user.balance - cost },
     });
 
-    const bet = await db.bet.create({
-      userId: user.id,
-      marketId,
-      amount,
-      outcome,
-      price,
+    const bet = await prisma.bet.create({
+      data: {
+        userId: user.id,
+        marketId,
+        amount,
+        outcome,
+        price,
+      },
     });
 
-    await db.market.update({
+    await prisma.market.update({
       where: { id: marketId },
       data: { volume: market.volume + Math.round(cost * 100) / 100 },
     });
 
-    const updatedMarket = await db.market.findUnique({ where: { id: marketId } });
+    const updatedMarket = await prisma.market.findUnique({ where: { id: marketId } });
 
     return NextResponse.json({
       bet,
