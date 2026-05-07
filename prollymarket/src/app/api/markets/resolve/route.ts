@@ -27,9 +27,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Outcome must be YES or NO' }, { status: 400 });
     }
 
+    // Check user is the creator
     const market = await db.market.findUnique({ where: { id: marketId } });
     if (!market) {
       return NextResponse.json({ error: 'Market not found' }, { status: 404 });
+    }
+
+    if (market.creatorId !== decoded.userId) {
+      return NextResponse.json({ error: 'Only the market creator can resolve' }, { status: 403 });
     }
 
     if (market.isResolved) {

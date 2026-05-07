@@ -34,7 +34,7 @@ export default function MarketPage() {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
 const [betting, setBetting] = useState(false);
-  const [user, setUser] = useState<{ balance: number } | null>(null);
+  const [user, setUser] = useState<{ id: number; balance: number } | null>(null);
   const [showResolve, setShowResolve] = useState(false);
   const [resolveOutcome, setResolveOutcome] = useState<'YES' | 'NO'>('YES');
   const [resolving, setResolving] = useState(false);
@@ -49,6 +49,13 @@ const [betting, setBetting] = useState(false);
       })
       .catch(() => router.push('/'));
   }, [params.id, router]);
+
+  useEffect(() => {
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => setUser(data.user))
+      .catch(() => {});
+  }, []);
 
   const formatPrice = (price: number) => (price * 100).toFixed(0) + '¢';
   const formatVolume = (volume: number) => {
@@ -74,7 +81,7 @@ const [betting, setBetting] = useState(false);
         setError(data.error || 'Failed to place bet');
       } else {
         setMarket(data.market);
-        setUser({ balance: data.balance });
+        setUser({ id: data.user.id, balance: data.balance });
       }
     } catch {
       setError('Failed to place bet');
@@ -114,7 +121,7 @@ const [betting, setBetting] = useState(false);
           </div>
         )}
 
-        {!market.isResolved && (
+        {!market.isResolved && user && user.id === market.creatorId && (
           <button
             onClick={() => setShowResolve(true)}
             className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
