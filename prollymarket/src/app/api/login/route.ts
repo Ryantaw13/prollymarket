@@ -26,10 +26,18 @@ export async function POST(request: NextRequest) {
 
     const token = createToken(user.id);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: { id: user.id, username: user.username, displayName: user.displayName, balance: user.balance },
       token,
     });
+
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Login failed' }, { status: 500 });
