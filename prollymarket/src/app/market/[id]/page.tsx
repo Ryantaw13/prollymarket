@@ -100,7 +100,7 @@ export default function MarketPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading...</div>;
   }
 
   if (!market) {
@@ -109,22 +109,22 @@ export default function MarketPage() {
 
   return (
     <div>
-      <button onClick={() => router.push('/')} className="text-indigo-600 hover:underline mb-4">
+      <button onClick={() => router.push('/')} className="text-indigo-600 dark:text-indigo-400 hover:underline mb-4">
         ← Back to markets
       </button>
 
       <div className="card mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-500 uppercase">{market.category}</span>
-          <span className="text-sm text-gray-500">{formatVolume(market.volume)}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 uppercase">{market.category}</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{formatVolume(market.volume)}</span>
         </div>
         
         <h1 className="text-2xl font-bold mb-2">{market.question}</h1>
-        {market.description && <p className="text-gray-600 mb-4">{market.description}</p>}
+        {market.description && <p className="text-gray-600 dark:text-gray-300 mb-4">{market.description}</p>}
         
         {market.isResolved && (
           <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            market.outcome === 'YES' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            market.outcome === 'YES' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
           }`}>
             Resolved: {market.outcome}
           </div>
@@ -136,11 +136,11 @@ export default function MarketPage() {
           <h2 className="font-medium mb-4">Place a Bet</h2>
           
           {user && (
-            <p className="text-sm text-gray-500 mb-4">Your balance: ${user.balance.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Your balance: ${user.balance.toFixed(2)}</p>
           )}
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount ($)</label>
             <input
               type="number"
               value={amount}
@@ -172,7 +172,7 @@ export default function MarketPage() {
           </div>
           
           {amount && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Cost: ${(parseFloat(amount || '0') * (market.yesPrice || 0)).toFixed(2)} (YES) / ${(parseFloat(amount || '0') * (market.noPrice || 0)).toFixed(2)} (NO)
             </p>
           )}
@@ -182,12 +182,12 @@ export default function MarketPage() {
       <div className="card">
         <h2 className="font-medium mb-4">Recent Bets</h2>
         {bets.length === 0 ? (
-          <p className="text-gray-500">No bets yet</p>
+          <p className="text-gray-500 dark:text-gray-400">No bets yet</p>
         ) : (
           <div className="space-y-2">
             {bets.slice(0, 10).map(bet => (
-              <div key={bet.id} className="flex justify-between items-center py-2 border-b last:border-0">
-                <span className={bet.outcome === 'YES' ? 'text-green-600' : 'text-red-600'}>
+              <div key={bet.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                <span className={bet.outcome === 'YES' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                   {bet.outcome} @ {formatPrice(bet.price)}
                 </span>
                 <span>${bet.amount.toFixed(2)}</span>
