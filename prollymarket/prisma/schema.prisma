@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = "postgres://postgres:YmJ7K067rj1PIRl0@db.khtddglxdmgenyfuqvyk.supabase.co:5432/postgres"
 }
 
 model User {
@@ -16,7 +16,6 @@ model User {
   balance      Float      @default(1000)
   streakDays   Int        @default(0)
   lastLogin    DateTime?
-  referralCode String?    @unique
   approved    Boolean    @default(false)
   achievements String    @default("[]")
   createdAt    DateTime   @default(now())
