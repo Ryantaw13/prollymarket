@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 export const prisma = new PrismaClient();
 
-// For legacy db.user.create syntax compatibility
+// Simple db wrapper
 export const db = {
   user: {
     findUnique: (params: any) => prisma.user.findUnique(params),
@@ -25,20 +25,8 @@ export const db = {
   },
   comment: {
     findMany: (params?: any) => prisma.comment.findMany(params),
+    findUnique: (params: any) => prisma.comment.findUnique(params),
     create: (data: any) => prisma.comment.create(data),
     count: (params?: any) => prisma.comment.count(params),
-  },
-  alert: {
-    findMany: (params?: any) => prisma.alert.findMany(params),
-    create: (data: any) => prisma.alert.create(data),
-    delete: (params: any) => prisma.alert.delete(params),
-  },
-  priceHistory: {
-    create: (data: any) => prisma.priceHistory.create(data),
-    findMany: (params?: any) => prisma.priceHistory.findMany(params),
-  },
-  dailyBonus: {
-    findMany: (params?: any) => prisma.dailyBonus.findMany(params),
-    create: (data: any) => prisma.dailyBonus.create(data),
   },
 };

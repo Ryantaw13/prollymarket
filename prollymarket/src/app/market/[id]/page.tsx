@@ -276,7 +276,7 @@ const [betting, setBetting] = useState(false);
           onClick={() => setShowComments(!showComments)}
           className="flex items-center justify-between w-full"
         >
-          <h2 className="font-medium">Comments ({market.commentCount || 0})</h2>
+          <h2 className="font-medium">Comments</h2>
           <span>{showComments ? '▼' : '▶'}</span>
         </button>
         

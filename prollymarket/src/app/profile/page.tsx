@@ -95,7 +95,7 @@ export default function Profile() {
     return <div className="card text-center py-12">Please login to view profile</div>;
   }
 
-  const achievementList = user.achievements ? JSON.parse(user.achievements) : [];
+  const achievementList: string[] = [];
 
   return (
     <div className="max-w-4xl mx-auto">
